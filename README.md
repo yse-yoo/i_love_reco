@@ -144,3 +144,59 @@ sudo nginx -t
 ```bash
 sudo systemctl restart nginx
 ```
+
+## サービス
+```bash
+sudo adduser --system --no-create-home i_love_reco
+```
+
+```bash
+[Unit]
+Description=Gunicorn instance for i_love_reco
+After=network.target
+
+[Service]
+# アプリケーションを実行するユーザーとグループを指定
+User=ubuntu
+Group=www-data
+
+# 実行ディレクトリ（プロジェクトのルートディレクトリ）
+WorkingDirectory=/var/www/html/i_love_reco/
+
+# Gunicornの実行コマンド
+ExecStart=/var/www/html/i_love_reco/.venv/bin/gunicorn \
+          --workers 3 \
+          --bind 0.0.0.0:5000 \
+          app:app
+
+# 失敗時に自動でサービスを再起動する設定
+Restart=always
+
+# ログを出力するための標準入出力設定
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=i_love_reco
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### daemon 設定読み込み
+```bash
+sudo systemctl daemon-reload
+```
+
+### 自動再起動の有効化
+```bash
+sudo systemctl enable i_love_reco.service
+```
+
+### 確認
+```bash
+sudo systemctl status i_love_reco.service
+```
+
+## Nginx状態
+```bash
+sudo systemctl status nginx
+```
