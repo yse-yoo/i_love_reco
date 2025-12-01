@@ -1,0 +1,96 @@
+<!-- register.html -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>ユーザー登録 | AIレコメンダー</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 flex items-center justify-center min-h-screen">
+
+  <div class="w-full max-w-md bg-slate-800 p-8 rounded-xl shadow-lg">
+    <h2 class="text-2xl font-bold mb-6 text-center">ユーザー登録</h2>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="mb-4 text-red-400 text-sm text-center">
+          {% for message in messages %}
+            {{ message }}
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('register') }}" class="space-y-4">
+      <div>
+        <label class="block mb-1">ユーザーネーム:</label>
+        <input type="tkoreext" name="username" required
+          class="w-full p-3 rounded bg-slate-700 border border-slate-600 text-slate-100 placeholder-slate-400" />
+      </div>
+
+      <div>
+        <label class="block mb-1">Eメール:</label>
+        <input type="email" name="email" required
+          class="w-full p-3 rounded bg-slate-700 border border-slate-600 text-slate-100 placeholder-slate-400" />
+      </div>
+
+      <div>
+        <label class="block mb-1">パスワード:</label>
+        <input type="password" name="password" required
+          class="w-full p-3 rounded bg-slate-700 border border-slate-600 text-slate-100 placeholder-slate-400" />
+      </div>
+
+      <div>
+        <label class="block mb-1">MBTIタイプ:</label>
+        <select name="mbti_type" required
+          class="w-full p-3 rounded bg-slate-700 border border-slate-600 text-slate-100">
+          <option value="" disabled selected>選択してください</option>
+          <option value="INFP">INFP（仲介者 / Mediator）</option>
+          <option value="INFJ">INFJ（提唱者 / Advocate）</option>
+          <option value="INTJ">INTJ（建築家 / Architect）</option>
+          <option value="INTP">INTP（論理学者 / Logician）</option>
+          <option value="ISFP">ISFP（冒険家 / Adventurer）</option>
+          <option value="ISFJ">ISFJ（擁護者 / Defender）</option>
+          <option value="ISTJ">ISTJ（管理者 / Logistician）</option>
+          <option value="ISTP">ISTP（巨匠 / Virtuoso）</option>
+          <option value="ENFP">ENFP（運動家 / Campaigner）</option>
+          <option value="ENFJ">ENFJ（主人公 / Protagonist）</option>
+          <option value="ENTJ">ENTJ（指揮官 / Commander）</option>
+          <option value="ENTP">ENTP（討論者 / Debater）</option>
+          <option value="ESFP">ESFP（エンターテイナー / Entertainer）</option>
+          <option value="ESFJ">ESFJ（領事 / Consul）</option>
+          <option value="ESTP">ESTP（起業家 / Entrepreneur）</option>
+          <option value="ESTJ">ESTJ（幹部 / Executive）</option>
+          <option value="わからない">わからない</option>
+        </select>
+      </div>
+
+      <div>
+  <label class="block mb-1">都市:</label>
+  <select name="city" required
+    class="w-full p-3 rounded bg-slate-700 border border-slate-600 text-slate-100">
+    <option value="" disabled selected>選択してください</option>
+    <option value="Tokyo">東京</option>
+    <option value="Osaka">大阪</option>
+    <option value="Sapporo">札幌</option>
+    <option value="Nagoya">名古屋</option>
+    <option value="Fukuoka">福岡</option>
+    <option value="Kanagawa">神奈川</option>
+  </select>
+</div>
+
+
+      <button type="submit"
+        class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 rounded transition">
+        登録
+      </button>
+    </form>
+
+    <p class="text-center text-sm mt-4">
+      すでにアカウントをお持ちの方は
+      <a href="{{ url_for('login') }}" class="text-emerald-400 hover:underline">ログイン画面へ</a>
+    </p>
+  </div>
+
+</body>
+</html>

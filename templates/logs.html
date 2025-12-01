@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>チャットログ履歴</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script>
+    if (localStorage.getItem('theme') === 'dark') {
+      document.documentElement.classList.add('dark');
+    }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' };
+  </script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const overlay = document.getElementById("dateOverlay");
+      const input = document.getElementById("dateInput");
+
+      overlay.addEventListener("click", () => {
+        input.showPicker && input.showPicker(); // 新しいブラウザでサポート
+        input.focus(); // 古いブラウザでも反応するように
+      });
+    });
+  </script>
+</head>
+
+<body class="bg-slate-900 text-slate-100 font-sans dark:bg-white dark:text-gray-900">
+
+  <!-- ヘッダー -->
+  <header
+    class="bg-slate-800 text-white py-4 px-6 flex justify-between items-center dark:bg-gray-100 dark:text-gray-900 border-b border-slate-700 dark:border-gray-300">
+    <h1 class="text-2xl font-bold">
+      <a href="{{ url_for('index') }}" class="flex items-center">
+        <img src="{{ url_for('static', filename='images/icon/logomoji_dark.png') }}" class="h-10 block dark:hidden"
+          alt="ホーム">
+        <img src="{{ url_for('static', filename='images/icon/logomoji_light.png') }}" class="h-10 hidden dark:block"
+          alt="ホーム（ダーク）">
+      </a>
+    </h1>
+    <button id="menuToggle" class="text-3xl focus:outline-none">☰</button>
+  </header>
+
+  <!-- ハンバーガーメニュー -->
+  <div id="mobileMenu" class="fixed top-0 right-0 w-64 h-full bg-slate-900 text-white dark:bg-white dark:text-gray-900
+         p-6 flex flex-col justify-between z-50 transform translate-x-full transition-transform duration-300 shadow-2xl
+         border-l border-slate-700 dark:border-gray-300">
+
+    <!-- メニュー上部 -->
+    <div>
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-bold">メニュー</h2>
+        <button id="closeMenu" class="text-2xl hover:text-rose-500">✕</button>
+      </div>
+
+      <!-- メニューリンク群 -->
+      <nav class="flex flex-col space-y-2 text-base">
+        <!-- ホーム -->
+        <a href="{{ url_for('index') }}"
+          class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-slate-800 dark:hover:bg-gray-100 hover:shadow-md transition text-base">
+          <img src="{{ url_for('static', filename='images/icon/Home_NG.png') }}" alt="ホーム（ライト）"
+            class="w-6 h-6 block dark:hidden" />
+          <img src="{{ url_for('static', filename='images/icon/Home_LG.png') }}" alt="ホーム（ダーク）"
+            class="w-6 h-6 hidden dark:block" />
+          ホーム
+        </a>
+
+        <!-- MBTI -->
+        <a href="/mbti"
+          class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-slate-800 dark:hover:bg-gray-100 hover:shadow-md transition text-base">
+          <img src="{{ url_for('static', filename='images/icon/Mbti_NG.png') }}" alt="MBTI（ライト）"
+            class="w-6 h-6 block dark:hidden" />
+          <img src="{{ url_for('static', filename='images/icon/Mbti_LG.png') }}" alt="MBTI（ダーク）"
+            class="w-6 h-6 hidden dark:block" />
+          MBTI
+        </a>
+
+        <!-- 履歴 -->
+        <a href="/logs"
+          class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-slate-800 dark:hover:bg-gray-100 hover:shadow-md transition text-base">
+          <img src="{{ url_for('static', filename='images/icon/Log_NG.png') }}" alt="履歴（ライト）"
+            class="w-6 h-6 block dark:hidden" />
+          <img src="{{ url_for('static', filename='images/icon/Log_LG.png') }}" alt="履歴（ダーク）"
+            class="w-6 h-6 hidden dark:block" />
+          履歴
+        </a>
+
+        <!-- モード切替 -->
+        <a href="javascript:void(0);" id="toggleDarkMobile"
+          class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-slate-800 dark:hover:bg-gray-100 hover:shadow-md transition text-base">
+          <img src="{{ url_for('static', filename='images/icon/Mode_NG.png') }}" alt="モード切替（ライト）"
+            class="w-6 h-6 block dark:hidden" />
+          <img src="{{ url_for('static', filename='images/icon/Mode_LG2.png') }}" alt="モード切替（ダーク）"
+            class="w-6 h-6 hidden dark:block" />
+          モード切替
+        </a>
+      </nav>
+    </div>
+
+
+    <!-- プロフィールリンク：下部固定 -->
+    <a href="{{ url_for('profile') }}"
+      class="flex items-center gap-3 px-4 py-2 mt-2 rounded-lg transition duration-300
+          hover:bg-slate-800 dark:hover:bg-gray-100 hover:shadow-md hover:ring-1 hover:ring-slate-600 dark:hover:ring-gray-300">
+
+      {% if mbti_type %}
+      <img src="{{ url_for('static', filename='images/' + mbti_type + '.png') }}" alt="{{ mbti_type }}"
+        class="w-12 h-12 rounded-full border-2 border-white dark:border-gray-800 shadow-sm mb-2" />
+      {% else %}
+      <div
+        class="w-12 h-12 flex items-center justify-center bg-white text-blue-600 rounded-full font-bold text-lg shadow">
+        🧑‍💼
+      </div>
+      {% endif %}
+
+      <div class="flex flex-col">
+        <span class="text-sm font-semibold truncate">{{ current_user.username }} さん</span>
+        <span class="text-xs text-slate-400 dark:text-gray-600">プロフィール</span>
+      </div>
+    </a>
+  </div>
+
+  <!-- メイン -->
+  <main class="w-full max-w-3xl mx-auto p-6 mt-10 bg-slate-800 dark:bg-gray-200 rounded-2xl shadow-xl space-y-6">
+    <h2 class="text-3xl font-bold text-center mb-6 text-white dark:text-gray-900">
+      {{ current_user.username }} さんのチャット履歴
+    </h2>
+
+    <!-- 🔍 日付検索フォーム -->
+    <form method="GET" action="{{ url_for('show_logs') }}"
+      class="bg-slate-700 dark:bg-white p-6 rounded-xl shadow-lg w-full max-w-4xl mx-auto flex justify-center">
+
+      <div class="flex flex-row items-center gap-4 w-full justify-center">
+
+        <!-- 横長日付入力 -->
+        <div class="relative flex-1 max-w-lg">
+          <input type="date" id="dateInput" name="date" value="{{ selected_date or '' }}"
+            class="w-full h-11 px-4 py-2 rounded-md border border-gray-300 text-black dark:text-black cursor-pointer shadow-inner" />
+          <div class="absolute inset-0 z-10" onclick="document.getElementById('dateInput').showPicker?.();"></div>
+        </div>
+
+        <!-- 検索ボタン -->
+        <button type="submit"
+          class="w-32 h-11 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded dark:bg-emerald-500 dark:hover:bg-emerald-600 shadow-md transition">
+          🔍 検索
+        </button>
+
+        <!-- すべて表示 -->
+        <a href="{{ url_for('show_logs') }}"
+          class="h-11 px-4 flex items-center bg-gray-100 text-gray-700 dark:bg-gray-200 dark:text-gray-800 rounded-md text-sm font-medium shadow-sm hover:bg-gray-300 transition">
+          すべて表示
+        </a>
+
+      </div>
+    </form>
+
+
+
+
+    {% if grouped_logs %}
+    {% for date, logs in grouped_logs.items() %}
+    {% set safe_date = date.replace('-', '_') %}
+    <section class="rounded-lg border border-slate-600 dark:border-gray-400 overflow-hidden">
+      <!-- 日付の見出し -->
+      <button onclick="toggleLogs('{{ date }}')"
+        class="w-full text-left px-4 py-2 bg-slate-700 dark:bg-gray-300 dark:text-gray-900 text-white font-semibold hover:bg-slate-600 flex items-center gap-2">
+        <!-- ライトモード用アイコン -->
+        <img src="{{ url_for('static', filename='images/icon/LogLogNG.png') }}" alt="日付（ライト）"
+          class="w-5 h-5 block dark:hidden" />
+
+        <!-- ダークモード用アイコン -->
+        <img src="{{ url_for('static', filename='images/icon/LogLogNM.png') }}" alt="日付（ダーク）"
+          class="w-5 h-5 hidden dark:block" />
+
+        {{ date }}
+      </button>
+
+      <!-- ログ一覧 -->
+      <div id="logs-{{ safe_date }}" class="hidden px-6 py-4 space-y-4 bg-slate-800 dark:bg-gray-100">
+        {% for log in logs %}
+        <div
+          class="p-4 rounded-lg shadow relative
+                        {{ 'bg-blue-600 text-white' if log.role == 'user' else 'bg-emerald-600 text-white' }}
+                        dark:{{ 'bg-blue-300 text-gray-900' if log.role == 'user' else 'bg-emerald-300 text-gray-900' }}">
+          <div class="mb-2">
+            <strong class="block text-sm">
+              {{ current_user.username if log.role == 'user' else 'I♡RECO' }}（{{ log.timestamp.strftime('%H:%M') }}）
+            </strong>
+          </div>
+          <div class="text-sm leading-relaxed">
+            {{ log.message.replace('\n', '<br>') | safe }}
+          </div>
+
+          <!-- 削除ボタン -->
+          <form method="POST" action="{{ url_for('delete_log', log_id=log.id) }}"
+            onsubmit="return confirm('このログを削除しますか？');" class="absolute top-2 right-2">
+            <button type="submit" class="text-xs bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded shadow">
+              🗑️
+            </button>
+          </form>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+    {% endfor %}
+    {% else %}
+    <p class="text-center text-slate-400 dark:text-gray-600 mt-6">
+      まだチャット履歴はありません。
+    </p>
+    {% endif %}
+  </main>
+
+  <footer
+    class="text-center text-sm text-slate-400 dark:text-gray-600 mt-8 mb-4 p-4 border-t border-slate-700 dark:border-gray-300">
+    &copy; I♡RECO 2025 K2SI
+  </footer>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+
+</html>

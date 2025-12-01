@@ -1,0 +1,27 @@
+body {
+  font-family: "Noto Sans JP", sans-serif;
+}
+
+button.mood-btn:hover {
+  transform: scale(1.1);
+  transition: transform 0.2s ease-in-out;
+}
+
+
+
+
+/* フッター調整用 */
+.footer-large {
+  padding-top: 3rem;   /* 約 py-3 */
+  padding-bottom: 0.75rem;
+  font-size: 1.125rem;  
+  border-top: 1px solid #475569; 
+  margin-top: 4.5rem;
+  text-align: center;
+  opacity: 0.85;
+}
+
+/* テキストエリアのサイズ変更禁止や */
+textarea {
+  resize: none;  
+}
